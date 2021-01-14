@@ -1,31 +1,31 @@
-import time
+from flask import Flask, request, jsonify
 import pymongo
-from flask import Flask
+from pymongo import MongoClient
 
 app = Flask(__name__)
-client = pymongo.MongoClient('mongo1',27017, replicaSet='rs0')
-db = client['test-database']
-collection = db['test-collection']
-# cache = redis.Redis(host='redishost', port=6379)
 
-
-def get_hit_count():
-    entity = collection.find_one()
-    if entity == None:
-        collection.insert_one({"count":"1"})
-        return 1
-    newValue = int(entity['count']) + 1
-    collection.update_one(
-    {"_id": entity['_id']},
-    {"$set":
-        {"count": newValue,
-    }})
-    return newValue
+def get_db():
+    client = MongoClient(host='mongo', port=27017, username='root', password='pass', authSource='admin')
+    db = client["cluster_db"]
+    return db
 
 @app.route('/')
-def hello():
-    count = get_hit_count()
-    return 'Hello World! I have been seen {} times.\n'.format(count)
+def fetch_counter():
+    db = get_db()
+    _counters = db.cluster_db.find()
+    
+    counters = [{"_id": counter["_id"],"value": counter["value"]} for counter in _counters]
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
+    if len(counters) > 0:
+        _id = counters[0]["_id"]
+        db.cluster_db.find_one_and_update({'_id': _id}, {'$inc': {'value': 1}})
+        counted = db.cluster_db.find_one({"_id": _id})
+
+        return "You have visted me {} times".format(counted['value'])
+    
+    db.cluster_db.insert_one({"value": 1})
+
+    return "You have visted me 1 time"
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8080, debug=True)
