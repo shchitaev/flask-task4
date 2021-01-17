@@ -3,7 +3,7 @@
 Кирилл Щитаев
 ## Шаги развёртывания
 
-1\) Run containers from the root of the project:
+1\) Запуск средства docker-compose:
 ```dotenv
 docker-compose up 
 ```
