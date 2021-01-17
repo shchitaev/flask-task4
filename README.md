@@ -1,11 +1,10 @@
-# Задание 4. Для дисциплины «Проектирование информационных систем» 
-
+# Задание 4. Использование Docker с БД, кластеризация
 ## Автор
 Кирилл Щитаев
+## Шаги развёртывания
 
-
-### 1\) Run containers from the root of the project::
+1\) Run containers from the root of the project:
 ```dotenv
-sudo docker-compose up -d --build --force-recreate
+docker-compose up 
 ```
-### 2\) Visit http://localhost:5000/
+2\) Приложение будет развернуто по адрессу http://localhost:8080/
